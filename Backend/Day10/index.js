@@ -66,6 +66,40 @@ app.get("/customer/:accountNumber", async (req, resp) => {
   }
 });
 
+//delete user on the basis of their account Number
+
+app.delete("/customer/:accountNumber", async (req, resp) => {
+  const accountValue = req.params.accountNumber;
+  const customer = await Customer.findOneAndDelete({
+    accountNumber: accountValue,
+  });
+  if (!customer) {
+    resp.json({
+      message: "Customer Doesnt exist",
+    });
+  } else {
+    resp.json({
+      message: "Customer  deleted",
+      customer: customer,
+    });
+  }
+});
+
+// Update the city of the user
+
+app.patch("/customer/:accountNumber", async (req, resp) => {
+  const { city, age } = req.body;
+  // findoneandUpdate phle args hume fine krenge params ke basis pe Customer collection me jaake accountnumber key ki cvalue parmas value se equal krke duhnd lega
+  //second args lega jo hume update krna h
+  const customer = await Customer.findOneAndUpdate(
+    { accountNumber: accountNumber },
+    { $set: { city: city, age: age } },
+    { new: true },
+  );
+
+  resp.json(customer);
+});
+
 app.listen(3000, () => {
   console.log("server is listening on port number 3000");
 });
