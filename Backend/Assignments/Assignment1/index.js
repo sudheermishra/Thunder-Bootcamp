@@ -473,6 +473,378 @@ app.get("/products/search/name", async (req, resp) => {
   }
 });
 
+//                                  Part 3: Sorting and Pagination APIs
+
+// 21. Sort products by price low to high
+
+app.get("/products/sort/price-asc", async (req, resp) => {
+  try {
+    const products = await Product.find().sort({ price: 1 });
+    if (products.length === 0) {
+      return resp.status(400).json({
+        message: "products not found",
+      });
+    }
+    resp.status(200).json({
+      products,
+    });
+  } catch (error) {
+    resp.status(500).json({
+      message: error.message,
+    });
+  }
+});
+
+// 22. Sort products by price high to low
+app.get("/products/sort/price-desc", async (req, resp) => {
+  try {
+    const products = await Product.find().sort({ price: -1 });
+    if (products.length === 0) {
+      return resp.status(400).json({
+        message: "products not found",
+      });
+    }
+    resp.status(200).json({
+      products,
+    });
+  } catch (error) {
+    resp.status(500).json({
+      message: error.message,
+    });
+  }
+});
+
+// 23. Sort products by rating high to low
+app.get("/products/sort/rating-desc", async (req, resp) => {
+  try {
+    const products = await Product.find().sort({ rating: -1 });
+    if (products.length === 0) {
+      return resp.status(400).json({
+        message: "products not found",
+      });
+    }
+    resp.status(200).json({
+      products,
+    });
+  } catch (error) {
+    resp.status(500).json({
+      message: error.message,
+    });
+  }
+});
+
+//24. Get top 5 expensive products
+app.get("/products/top/expensive", async (req, resp) => {
+  try {
+    const products = await Product.find().sort({ price: -1 }).limit(5);
+    if (products.length === 0) {
+      return resp.status(400).json({
+        message: "products not found",
+      });
+    }
+    resp.status(200).json({
+      products,
+    });
+  } catch (error) {
+    resp.status(500).json({
+      message: error.message,
+    });
+  }
+});
+
+// 25. Pagination API
+// Example:
+// GET /products/pagination?page=2&limit=5
+
+app.get("/products/pagination", async (req, resp) => {
+  // Query parameters hamesha string hote hain
+  const { page, limit } = req.query;
+
+  try {
+    // Step 1: Check karo ki page aur limit dono aaye hain ya nahi.
+    // ! (NOT) operator:
+    // Agar value undefined, null ya empty hogi to condition true ho jayegi.
+    // || (OR) operator:
+    // Dono me se EK bhi condition true hui to if execute hoga.
+    if (!page || !limit) {
+      return resp.status(400).json({
+        message: "Both page and limit are required",
+      });
+    }
+
+    // Step 2: String ko Number me convert karo.
+    const pageNumber = Number(page);
+    const limitNumber = Number(limit);
+
+    // Step 3: Check karo ki converted values valid numbers hain ya nahi.
+    // Examples:
+    // page=abc&limit=5  -> true || false -> true
+    // page=2&limit=xyz  -> false || true -> true
+    // page=2&limit=5    -> false || false -> false
+    if (isNaN(pageNumber) || isNaN(limitNumber)) {
+      return resp.status(400).json({
+        message: "Page and limit must be numbers",
+      });
+    }
+
+    // Pagination Formula:
+    // skip = (page - 1) * limit
+    //
+    // Meaning:
+    // skip() starting ke documents ko ignore karta hai.
+    //
+    // Example 1:
+    // page = 1, limit = 5
+    // skip = (1 - 1) * 5 = 0
+    // Return -> Products 1 to 5
+    //
+    // Example 2:
+    // page = 2, limit = 5
+    // skip = (2 - 1) * 5 = 5
+    // Pehle 5 products skip honge,
+    // fir next 5 products (6-10) return honge.
+    //
+    // Example 3:
+    // page = 3, limit = 5
+    // skip = (3 - 1) * 5 = 10
+    // Pehle 10 products skip,
+    // fir next 5 products (11-15) return honge.
+    const skip = (pageNumber - 1) * limitNumber;
+
+    // find() -> Saare products
+    // skip() -> Starting ke products ignore
+    // limit() -> Sirf itne products return
+    const products = await Product.find().skip(skip).limit(limitNumber);
+
+    // find() hamesha array return karta hai.
+    // Empty array => koi product nahi mila.
+    if (products.length === 0) {
+      return resp.status(404).json({
+        message: "Products not found",
+      });
+    }
+
+    // Success response
+    resp.status(200).json({
+      products,
+    });
+  } catch (error) {
+    // Server/Internal error
+    resp.status(500).json({
+      message: error.message,
+    });
+  }
+});
+
+//                                 Part 4: Stock, Tags, Reviews
+
+// 26. Increase product stock
+app.patch("/products/:slug/stock/increase", async (req, resp) => {
+  const quantity = req.body.quantity;
+  const slug = req.params.slug;
+  try {
+    if (!quantity) {
+      return resp.status(400).json({
+        message: "quantity must be required",
+      });
+    }
+
+    const quantityNumber = Number(quantity);
+    if (isNaN(quantityNumber)) {
+      return resp.status(400).json({
+        message: "quantity muse be in number",
+      });
+    }
+    if (quantityNumber <= 0) {
+      return resp.status(400).json({
+        message: "Quantity must be greater than 0",
+      });
+    }
+
+    const product = await Product.findOneAndUpdate(
+      { slug: slug },
+      {
+        $inc: { stock: quantityNumber },
+      },
+      { new: true },
+    );
+    if (!product) {
+      return resp.status(404).json({
+        message: "Product not found",
+      });
+    }
+
+    resp.json(product);
+  } catch (error) {
+    // Server/Internal error
+    resp.status(500).json({
+      message: error.message,
+    });
+  }
+});
+
+// 27. Decrease product stock
+
+app.patch("/products/:slug/stock/decrease", async (req, resp) => {
+  const quantity = req.body.quantity;
+  const slug = req.params.slug;
+  try {
+    if (!quantity) {
+      return resp.status(400).json({
+        message: "quantity must be required",
+      });
+    }
+
+    const quantityNumber = Number(quantity);
+    if (isNaN(quantityNumber)) {
+      return resp.status(400).json({
+        message: "quantity muse be in number",
+      });
+    }
+    if (quantityNumber <= 0) {
+      return resp.status(400).json({
+        message: "Quantity must be greater than 0",
+      });
+    }
+
+    const product = await Product.findOne({ slug: slug });
+    if (!product) {
+      return resp.status(404).json({
+        message: "Product not found",
+      });
+    }
+
+    if (product.stock < quantityNumber) {
+      return resp.status(400).json({
+        message: "Insufficient stock",
+      });
+    }
+
+    // decrement ke liye $inc bss -negative value passs kr do
+    const updatedProduct = await Product.findOneAndUpdate(
+      { slug: slug },
+      { $inc: { stock: -quantityNumber } },
+      { new: true },
+    );
+    if (updatedProduct === 0) {
+      updatedProduct.isAvailable = false;
+      await updatedProduct.save();
+    }
+
+    resp.status(200).json({
+      message: "stock quantity decreased",
+      updatedProduct,
+    });
+  } catch (error) {
+    resp.status(500).json({
+      message: error.message,
+    });
+  }
+});
+
+//  28. Add tag to product
+
+app.patch("/products/:slug/tags", async (req, resp) => {
+  const slug = req.params.slug;
+  const tag = req.body.tag;
+  try {
+    if (!tag) {
+      return resp.status(400).json({
+        message: "tag should be required",
+      });
+    }
+    // two methods are there to add like in schemma tag is a array so
+    // 1st { $push: { tags: tag }} but this will also add duplicate
+    // 2nd { $addToSet: { tags: tag }}  this avoid duplicate
+    const product = await Product.findOneAndUpdate(
+      { slug: slug },
+      { $addToSet: { tags: tag } },
+      { new: true },
+    );
+    if (!product) {
+      return resp.status(404).json({
+        message: "Product not found",
+      });
+    }
+    resp.status(200).json({
+      message: "product updated successfully",
+      product,
+    });
+  } catch (error) {
+    resp.status(500).json({
+      message: error.message,
+    });
+  }
+});
+
+// 29. Remove tag from product
+
+app.patch("/products/:slug/tags/remove", async (req, resp) => {
+  const slug = req.params.slug;
+  const tag = req.body.tag;
+  try {
+    if (!tag) {
+      return resp.status(400).json({
+        message: "tag should be required",
+      });
+    }
+
+    const product = await Product.findOneAndUpdate(
+      { slug: slug },
+      {
+        $pull: { tags: tag },
+      },
+      { new: true },
+    );
+    if (!product) {
+      return resp.status(404).json({
+        message: "Product not found",
+      });
+    }
+    resp.status(200).json({
+      message: "product updated successfully",
+      product,
+    });
+  } catch (error) {
+    resp.status(500).json({
+      message: error.message,
+    });
+  }
+});
+
+// 30. Add review to product
+
+app.patch("/products/:slug/tags/reviews", async (req, resp) => {
+  const slug = req.params.slug;
+  const review = req.body;
+  try {
+    if (!review) {
+      return resp.status(400).json({
+        message: "review should be required",
+      });
+    }
+    const product = await Product.findOneAndUpdate(
+      { slug: slug },
+      { $push: { reviews: review } },
+      { new: true },
+    );
+
+    if (!product) {
+      return resp.status(404).json({
+        message: "Product not found",
+      });
+    }
+
+    resp.status(200).json({
+      product,
+    });
+  } catch (error) {
+    resp.status(500).json({
+      message: error.message,
+    });
+  }
+});
+
 app.listen(3000, () => {
   console.log(`server is listening on port number 3000`);
 });
