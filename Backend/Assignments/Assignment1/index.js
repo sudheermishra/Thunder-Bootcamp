@@ -845,6 +845,28 @@ app.patch("/products/:slug/tags/reviews", async (req, resp) => {
   }
 });
 
+// 31. GET /products/:slug/reviews
+app.get("/products/:slug/reviews", async (req, resp) => {
+  const slug = req.params.slug;
+  try {
+    const product = await Product.findOne({ slug: slug });
+    if (!product) {
+      resp.status(400).json({
+        message: "product not found",
+      });
+    }
+    const reviews = product.reviews;
+    console.log(reviews);
+    resp.status(200).json({
+      reviews,
+    });
+  } catch (error) {
+    resp.status(500).json({
+      message: error.message,
+    });
+  }
+});
+
 app.listen(3000, () => {
   console.log(`server is listening on port number 3000`);
 });
