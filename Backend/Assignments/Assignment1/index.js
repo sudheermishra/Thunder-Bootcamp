@@ -945,6 +945,8 @@ app.get("/products/search/discounted", async (req, resp) => {
   }
 });
 
+// 35. GET /products/stats/category-count
+
 app.listen(3000, () => {
   console.log(`server is listening on port number 3000`);
 });

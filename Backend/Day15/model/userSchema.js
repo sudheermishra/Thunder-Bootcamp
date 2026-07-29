@@ -1,6 +1,8 @@
 import mongoose from "mongoose";
+// ================= USER SCHEMA =================
 
-const userScehma = new mongoose.Schema(
+// Har registered user ka data store hoga
+const userSchema = new mongoose.Schema(
   {
     name: {
       type: String,
@@ -46,5 +48,5 @@ const userScehma = new mongoose.Schema(
   { timestamps: true },
 );
 
-const User = mongoose.model("User", userScehma);
+const User = mongoose.model("User", userSchema);
 export default User;
