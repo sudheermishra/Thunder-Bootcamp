@@ -102,5 +102,26 @@ export const login = async (req, resp) => {
   }
 };
 
+export const profile = async (req, resp) => {
+  try {
+    const { token } = req.cookies;
+    const payload = jwt.verify(token, process.env.JWT_SECRET);
+    console.log(payload);
+    const user = await User.findOne({ _id: payload.id });
+    console.log(user);
+    if (!user) {
+      return resp.status(400).json({
+        message: "user not found",
+      });
+    }
+    resp.status(200).json({
+      data: user,
+    });
+  } catch (error) {
+    resp.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
 export const logout = async (req, resp) => {};
-export const profile = async (req, resp) => {};
