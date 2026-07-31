@@ -2,12 +2,13 @@ import User from "../model/userSchema.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
-const createToken = (userId) => {
+const createToken = (userId, email) => {
   if (!process.env.JWT_SECRET) {
+    // yeh error catch block me chala jayega
     throw new Error("JWT_SECRET is missing");
   }
 
-  return jwt.sign({ id: userId }, process.env.JWT_SECRET, {
+  return jwt.sign({ id: userId, email: email }, process.env.JWT_SECRET, {
     expiresIn: "1h",
   });
 };
@@ -47,7 +48,7 @@ export const signup = async (req, resp) => {
       password: hashPsssword,
     });
 
-    const token = createToken(user._id);
+    const token = createToken(user._id, user.email);
 
     resp.cookie("token", token, cookieOptions);
 
@@ -61,8 +62,9 @@ export const signup = async (req, resp) => {
       },
     });
   } catch (error) {
+    console.log(error);
     resp.status(500).json({
-      message: error.message,
+      message: "Internal Server Error",
     });
   }
 };
@@ -90,38 +92,48 @@ export const login = async (req, resp) => {
       });
     }
 
-    const token = createToken(user._id);
+    const token = createToken(user._id, user.email);
     resp.cookie("token", token, cookieOptions);
     resp.status(200).json({
       message: "User logged in successfully",
+      user: {
+        name: user.name,
+        age: user.age,
+        email: user.email,
+        usage: user.usage,
+      },
     });
   } catch (error) {
     resp.status(500).json({
-      message: error.message,
+      message: "Internal Server Error",
     });
   }
 };
 
 export const profile = async (req, resp) => {
   try {
-    const { token } = req.cookies;
-    const payload = jwt.verify(token, process.env.JWT_SECRET);
-    console.log(payload);
-    const user = await User.findOne({ _id: payload.id });
-    console.log(user);
-    if (!user) {
-      return resp.status(400).json({
-        message: "user not found",
-      });
-    }
+    const { name, email, age, usage } = req.user;
     resp.status(200).json({
-      data: user,
+      name: name,
+      age: age,
+      usage: usage,
+      email: email,
     });
   } catch (error) {
-    resp.status(500).json({
-      message: error.message,
-    });
+    (console.log(error),
+      resp.status(500).json({
+        message: "Internal Server Error",
+      }));
   }
 };
 
-export const logout = async (req, resp) => {};
+export const logout = async (req, resp) => {
+  resp.clearCookie("token", {
+    httpOnly: true,
+    secure: false,
+  });
+
+  resp.status(200).json({
+    message: "User Logged Out SuccessFully",
+  });
+};
