@@ -1,10 +1,11 @@
 import Chat from "../model/chatSchema.js";
+// import Message from "../model/messageSchema.js";
 export const createChat = async (req, resp) => {
   try {
     const { model } = req.body;
     // agar user ne model kaa naam sahi nhi dia toh
     if (!model) {
-      resp.status(400).json({
+      return resp.status(400).json({
         message: "Module Name Is Missing",
       });
     }
@@ -24,6 +25,78 @@ export const createChat = async (req, resp) => {
       model: model,
       topic: chats.topic,
       createdAt: chats.createdAt,
+    });
+  } catch (error) {
+    console.log(error);
+    resp.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
+};
+
+export const getRecentChat = async (req, resp) => {
+  try {
+    const chats = await Chat.find({ userId: req.user._id })
+      .select("topic updatedAt model")
+      .sort({ updatedAt: -1 });
+    resp.status(200).json({
+      message: "Your all recent chats",
+      chats,
+    });
+  } catch (error) {
+    console.log(error);
+    resp.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
+};
+
+export const getSingleChat = async (req, resp) => {
+  try {
+    const { chatId } = req.params;
+    const chat = Chat.findOne({ _id: chatId, userId: req.user._id });
+
+    if (!chat) {
+      return resp.status(403).json({
+        messages: "Data Not Found",
+      });
+    }
+
+    resp.status(200).json({
+      chatId: chat._id,
+      userId: chat.userId,
+      topic: chat.topic,
+      usage: chat.usage,
+    });
+  } catch (error) {
+    console.log(error);
+    resp.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
+};
+
+export const deleteChat = async (req, resp) => {
+  try {
+    const { chatId } = req.params;
+
+    const chat = await Chat.findOne({ _id: chatId, userId: req.user._id });
+    if (!chat) {
+      resp.status(403).json({
+        message: "You are not allowed to do this",
+      });
+    }
+
+    await Message.deleteMany({
+      chatId: chat._id,
+    });
+
+    await chat.deleteOne({
+      _id: chatId,
+    });
+
+    resp.status(200).json({
+      message: "Your chat deleted successfully",
     });
   } catch (error) {
     console.log(error);
