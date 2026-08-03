@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { model } from "mongoose";
 // ================= MESSAGE SCHEMA =================
 
 // Har message (User ya Assistant) alag document hoga.
@@ -66,3 +66,6 @@ messageSchema.index({ chatId: 1, createdAt: 1 });
 // Kisi user ke sabhi messages me se latest messages
 // jaldi fetch karne ke liye
 messageSchema.index({ userId: 1, createdAt: -1 });
+
+const Message = mongoose.model("Message", messageSchema);
+export default Message;
