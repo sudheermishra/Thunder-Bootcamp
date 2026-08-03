@@ -3,6 +3,7 @@ import connectDB from "./config/database.js";
 import dotenv from "dotenv";
 import userRouter from "./routes/userRouter.js";
 import cookieParser from "cookie-parser";
+import chatRouter from "./routes/chatRouter.js";
 
 // dotenv.config process.env jo ki empty object h usme yeh data fill kr dega dotenv package
 // process.env hume nodejs deta h naa ki dotenv module/pacakage
@@ -14,6 +15,7 @@ app.use(cookieParser());
 app.use(express.json());
 
 app.use("/user", userRouter);
+app.use("/chats", chatRouter);
 
 const startServer = async () => {
   try {
