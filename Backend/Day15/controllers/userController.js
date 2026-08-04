@@ -1,6 +1,7 @@
 import User from "../model/userSchema.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { loginSchema, signupSchema } from "../validators/userValidator.js";
 
 const createToken = (userId, email) => {
   if (!process.env.JWT_SECRET) {
@@ -21,14 +22,30 @@ const cookieOptions = {
 
 export const signup = async (req, resp) => {
   try {
-    const { name, age, email, password } = req.body;
-    if (!name || !email || !password) {
+    // jo bhi body me data aayega phle signupchema zod validator ke pass jayega agar validate nhi hua toh
+    // error  return kr dega jo bhi reason hoga
+    // user valid hua toh hum result me se result.data me se destructure kr lenege data ko jo bhi field aaya h result me
+
+    const result = signupSchema.safeParse(req.body);
+    if (!result.success) {
       return resp.status(400).json({
-        message: "Name, email and password are required",
+        message: result.error.issues[0].message,
       });
     }
 
+    // const { name, age, email, password } = req.body;
+    // if (!name || !email || !password) {
+    //   return resp.status(400).json({
+    //     message: "Name, email and password are required",
+    //   });
+    // }
+
+    const { name, age, email, password } = result.data;
+
     // if already a email exists
+    // Jab bhi hum databse ko access krenge yeh mongoose schema validate hoga
+    // but zod validator mogoose validator se phle validate hoga as we see hamara code me phle humne zod ko validate kiya h
+
     const existingUser = await User.findOne({ email: email });
     if (existingUser) {
       return resp.status(409).json({
@@ -71,14 +88,17 @@ export const signup = async (req, resp) => {
 
 export const login = async (req, resp) => {
   try {
-    const { email, password } = req.body;
-    if (!email || !password) {
-      return resp.status(400).json({
-        message: "Email and Password are required",
+    const result = loginSchema.safeParse(req.body);
+    console.log(result);
+    if (!result.success) {
+      resp.status(400).json({
+        message: result.error.issues[0].message,
       });
     }
+    const { email, password } = result.data;
 
     const user = await User.findOne({ email: email });
+    console.log(user);
     if (!user) {
       return resp.status(401).json({
         message: "Invalid Email or Password",
@@ -104,6 +124,7 @@ export const login = async (req, resp) => {
       },
     });
   } catch (error) {
+    console.log(error);
     resp.status(500).json({
       message: "Internal Server Error",
     });

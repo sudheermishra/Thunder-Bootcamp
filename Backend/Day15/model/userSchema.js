@@ -7,8 +7,6 @@ const userSchema = new mongoose.Schema(
     name: {
       type: String,
       required: true,
-      minLength: 3,
-      maxLength: 20,
     },
     age: {
       type: Number,

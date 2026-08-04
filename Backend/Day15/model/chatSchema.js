@@ -74,7 +74,7 @@ const chatSchema = new mongoose.Schema(
 // Pehle userId match hoga
 // Fir updatedAt descending me sort hoga
 // Latest updated chat sabse pehle milegi
-chatScehma.index({ userId: 1, updatedAt: -1 });
+chatSchema.index({ userId: 1, updatedAt: -1 });
 
 const Chat = mongoose.model("Chat", chatSchema);
 export default Chat;
