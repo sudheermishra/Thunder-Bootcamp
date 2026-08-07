@@ -30,7 +30,7 @@ export const getMessage = async (req, resp) => {
 export const sendMessage = async (req, resp) => {
   try {
     const { chatId } = req.params;
-    const { content } = req.body;
+    const { content, model } = req.body;
     // kahi user ne content empty yaa phir trim krne ke baad bhi empty string toh nhi diya
     if (!content || content.trim() === "") {
       return resp.status(400).json({
@@ -38,10 +38,32 @@ export const sendMessage = async (req, resp) => {
       });
     }
 
-    const chat = await Chat.findOne({ _id: chatId, userId: req.user_id });
-    if (!chat) {
-      return resp.status(404).json({
-        message: "Chat Not Found",
+    // agar chatId nhi h toh chatId create kro
+    // q ki firstTime user new chat banayega toh chatId hogi nhi
+    // agar chatId h toh validate kro usi user ki chat id h ki nhi
+
+    let chat;
+
+    if (chatId) {
+      // chat Id h toh validate kro user ki match kr rahi h h ki nhi
+      chat = await Chat.findOne({ _id: chatId, userId: req.user._id });
+      if (!chat) {
+        return resp.status(404).json({
+          message: "Chat Not Found",
+        });
+      }
+    }
+    // user ki chat Id nhi h toh nayi create kro model ke basis prr
+    else {
+      if (!model) {
+        return resp.status(400).json({
+          message: "model is required for new chat",
+        });
+      }
+      chat = await Chat.create({
+        userId: req.user._id,
+        model: model,
+        topic: content.trim().slice(0, 40),
       });
     }
 
@@ -53,7 +75,7 @@ export const sendMessage = async (req, resp) => {
       content: content,
     });
 
-    const dummy = "bss bdiya bhai";
+    const aiReply = "AI reply will come here later.";
 
     //llm wla data bhi database me store krayenge
 
@@ -61,11 +83,23 @@ export const sendMessage = async (req, resp) => {
       userId: req.user._id,
       chatId: chatId,
       role: assistant,
-      content: dummy,
+      content: aiReply,
     });
 
-    resp.status(200).json({
-      message: dummy,
+    // 7. Update chat metadata
+    chat.messageCount += 2;
+
+    // If topic is still default, update it from first message
+    if (chat.topic === "New Chat") {
+      chat.topic = content.trim().slice(0, 40);
+    }
+    await chat.save();
+    // 8. Send response
+    res.status(201).json({
+      message: "Message sent successfully",
+      chatId: chat._id,
+      userMessage,
+      aiMessage,
     });
   } catch (error) {
     console.log(error);
