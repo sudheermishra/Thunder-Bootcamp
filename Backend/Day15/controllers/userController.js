@@ -2,6 +2,8 @@ import User from "../model/userSchema.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { loginSchema, signupSchema } from "../validators/userValidator.js";
+import Message from "../model/messageSchema.js";
+import Chat from "../model/chatSchema.js";
 
 const createToken = (userId, email) => {
   if (!process.env.JWT_SECRET) {
@@ -157,4 +159,26 @@ export const logout = async (req, resp) => {
   resp.status(200).json({
     message: "User Logged Out SuccessFully",
   });
+};
+
+export const deleteAccount = async (req, resp) => {
+  try {
+    const userId = req.user._id;
+    await Message.deleteMany({ userId: userId });
+    await Chat.deleteMany({ userId: userId });
+    await User.deleteOne({ _id: userId });
+
+    resp.clearCookie("token", {
+      httpOnly: true,
+      secure: false,
+    });
+    resp.status(200).json({
+      message: "user deleted successfully",
+    });
+  } catch (error) {
+    console.log(error.message);
+    resp.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
 };
