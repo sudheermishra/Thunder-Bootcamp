@@ -1,5 +1,6 @@
 import Chat from "../model/chatSchema.js";
 import Message from "../model/messageSchema.js";
+import mongoose from "mongoose";
 
 export const getMessage = async (req, resp) => {
   try {
@@ -46,6 +47,12 @@ export const sendMessage = async (req, resp) => {
 
     if (chatId) {
       // chat Id h toh validate kro user ki match kr rahi h h ki nhi
+      if (!mongoose.Types.ObjectId.isValid(chatId)) {
+        return resp.status(400).json({
+          message: "Invalid chat id",
+        });
+      }
+
       chat = await Chat.findOne({ _id: chatId, userId: req.user._id });
       if (!chat) {
         return resp.status(404).json({
@@ -70,8 +77,8 @@ export const sendMessage = async (req, resp) => {
     // jo bhi user message content daalega phle database me store krayenge fir llm ko send krenge
     const userMessage = await Message.create({
       userId: req.user._id,
-      chatId: chatId,
-      role: user,
+      chatId: chat._id,
+      role: "user",
       content: content,
     });
 
@@ -81,8 +88,8 @@ export const sendMessage = async (req, resp) => {
 
     const aiMessage = await Message.create({
       userId: req.user._id,
-      chatId: chatId,
-      role: assistant,
+      chatId: chat._id,
+      role: "assistant",
       content: aiReply,
     });
 
@@ -95,7 +102,7 @@ export const sendMessage = async (req, resp) => {
     }
     await chat.save();
     // 8. Send response
-    res.status(201).json({
+    resp.status(201).json({
       message: "Message sent successfully",
       chatId: chat._id,
       userMessage,

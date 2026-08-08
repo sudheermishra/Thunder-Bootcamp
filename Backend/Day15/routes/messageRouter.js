@@ -4,9 +4,8 @@ import { sendMessage, getMessage } from "../controllers/messageController.js";
 const messageRouter = express.Router();
 
 messageRouter.use(authUserMiddleware);
-
+messageRouter.post("/", sendMessage);
 messageRouter.get("/:chatId", getMessage);
-
 messageRouter.post("/:chatId", sendMessage);
 
 export default messageRouter;

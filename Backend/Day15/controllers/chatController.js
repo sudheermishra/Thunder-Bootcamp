@@ -1,4 +1,5 @@
 import Chat from "../model/chatSchema.js";
+import Message from "../model/messageSchema.js";
 // import Message from "../model/messageSchema.js";
 export const createChat = async (req, resp) => {
   try {
