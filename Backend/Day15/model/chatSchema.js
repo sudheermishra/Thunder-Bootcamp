@@ -31,10 +31,14 @@ const chatSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
+
+    // kha tak ke message ki summary build krke store kr chuka hai
     summarizedTillMessageNumber: {
       type: Number,
       default: 0,
     },
+
+    // total kitne message hue h is particular chat me yeh store krke rakhega
     messageCount: {
       type: Number,
       default: 0,

@@ -1,6 +1,10 @@
 import Chat from "../model/chatSchema.js";
 import Message from "../model/messageSchema.js";
 import mongoose from "mongoose";
+import { resetUsageIfNeeded, tokenLimitReached } from "../utils/userUsage.js";
+import { buildMessageForAi } from "../utils/chatContext.js";
+import { generateAIResponse } from "../services/openRouterService.js";
+import { updateSummaryIfNeeded } from "../services/summaryService.js";
 
 export const getMessage = async (req, resp) => {
   try {
@@ -39,6 +43,15 @@ export const sendMessage = async (req, resp) => {
       });
     }
 
+    await resetUsageIfNeeded(req.user);
+
+    // if (tokenLimitReached(req.user)) {
+    //   return resp.status(429).json({
+    //     message: "Token limit reached. Please try after some time.",
+    //     usage: req.user.usage,
+    //   });
+    // }
+
     // agar chatId nhi h toh chatId create kro
     // q ki firstTime user new chat banayega toh chatId hogi nhi
     // agar chatId h toh validate kro usi user ki chat id h ki nhi
@@ -74,23 +87,39 @@ export const sendMessage = async (req, resp) => {
       });
     }
 
+    const oldMessages = await Message.find({
+      chatId: chat._id,
+    })
+      .sort({ createdAt: 1 })
+      .skip(chat.summarizedTillMessageNumber);
+
+    const messagesForAI = await buildMessageForAi({
+      chat,
+      oldMessages,
+      currentMessage: content.trim(),
+    });
+
+    const { aiReply, usage } = await generateAIResponse({
+      model: chat.model,
+      messages: messagesForAI,
+    });
+
     // jo bhi user message content daalega phle database me store krayenge fir llm ko send krenge
     const userMessage = await Message.create({
       userId: req.user._id,
       chatId: chat._id,
       role: "user",
-      content: content,
+      content: content.trim(),
     });
-
-    const aiReply = "AI reply will come here later.";
 
     //llm wla data bhi database me store krayenge
 
-    const aiMessage = await Message.create({
+    const assistantMessage = await Message.create({
       userId: req.user._id,
       chatId: chat._id,
       role: "assistant",
       content: aiReply,
+      usage,
     });
 
     // 7. Update chat metadata
@@ -100,6 +129,10 @@ export const sendMessage = async (req, resp) => {
     if (chat.topic === "New Chat") {
       chat.topic = content.trim().slice(0, 40);
     }
+
+    await addChatTokenUsage(chat, usage);
+    await addUserTokenUsage(req.user, usage.totalToken);
+
     await chat.save();
     // 8. Send response
     resp.status(201).json({
@@ -108,6 +141,8 @@ export const sendMessage = async (req, resp) => {
       userMessage,
       aiMessage,
     });
+
+    await updateSummaryIfNeeded(chat._id);
   } catch (error) {
     console.log(error);
     resp.status(500).json({

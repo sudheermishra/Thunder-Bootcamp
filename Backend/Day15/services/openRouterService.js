@@ -1,14 +1,15 @@
-import openRouter from "../config/openRouter";
+import openRouter from "../config/openRouter.js";
 
-export const generateAIResponse = async ({ model, message }) => {
-  const completion = openRouter.chat.send({
+export const generateAIResponse = async ({ model, messages }) => {
+  const completion = await openRouter.chat.send({
     chatRequest: {
       model: model,
-      message: message,
+      messages,
     },
   });
 
   // ? isliye lagaye ki agar aage kaaa available nhi ho toh hume error nhi mile undfinied mil jaye
+  console.log(completion.choices[0]);
   const aiReply = completion.choices[0]?.message?.content;
 
   // agar reply nhi mila like undefined mila toh hum error throw kr denge jha generateAiResponse ko call krenge hwha catch block me is error ko catch kr lega

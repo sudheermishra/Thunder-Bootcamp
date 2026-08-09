@@ -33,6 +33,14 @@ const userSchema = new mongoose.Schema(
       },
       // token ko reset kr denge
       resetAt: {
+        // User ke usage ka reset time set kar rahe hain.
+        // Date.now() = abhi ka current time milliseconds mein
+        // + 5 hours = 5 ghante future ka time
+        //
+        // Example:
+        // Abhi = 10:00 AM
+        // resetAt = 3:00 PM
+        // db me store kra denge 5 ghnte ke baad kaa
         type: Date,
         default: () => new Date(Date.now() + 5 * 60 * 60 * 1000), // abhi kaa time plus 5 hours kaaa time add kr diya in milisecond
       },
