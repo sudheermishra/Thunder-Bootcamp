@@ -5,6 +5,8 @@ import { resetUsageIfNeeded, tokenLimitReached } from "../utils/userUsage.js";
 import { buildMessageForAi } from "../utils/chatContext.js";
 import { generateAIResponse } from "../services/openRouterService.js";
 import { updateSummaryIfNeeded } from "../services/summaryService.js";
+import { addChatTokenUsage } from "../utils/chatTokenUsage.js";
+import { addUserTokenUsage } from "../utils/userUsage.js";
 
 export const getMessage = async (req, resp) => {
   try {
@@ -139,7 +141,7 @@ export const sendMessage = async (req, resp) => {
       message: "Message sent successfully",
       chatId: chat._id,
       userMessage,
-      aiMessage,
+      assistantMessage,
     });
 
     await updateSummaryIfNeeded(chat._id);
