@@ -14,6 +14,9 @@ const app = express();
 app.use(cookieParser());
 app.use(express.json());
 
+app.use("/", (req, resp) => {
+  resp.json("hllo");
+});
 app.use("/user", userRouter);
 app.use("/chats", chatRouter);
 app.use("/message", messageRouter);
