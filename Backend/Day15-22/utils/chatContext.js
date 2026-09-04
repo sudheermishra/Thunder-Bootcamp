@@ -19,7 +19,7 @@ export const buildMessageForAi = ({ chat, oldMessages, currentMessage }) => {
   // agar chat model me summary h toh toh usko trim krne ke baad empty string naa ho toh hi message me push kro
   // ex summary 1-40 message
   if (chat.summary && chat.summary.trim() !== "") {
-    message.push({
+    messages.push({
       role: "system",
       content: `Previous conversation summary:\n${chat.summary}`,
     });
