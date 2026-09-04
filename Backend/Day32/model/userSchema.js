@@ -1,0 +1,58 @@
+import mongoose from "mongoose";
+// ================= USER SCHEMA =================
+
+// Har registered user ka data store hoga
+const userSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+    },
+    age: {
+      type: Number,
+    },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    password: {
+      type: String,
+      required: true,
+    },
+    usage: {
+      // kitne token use ho gye current window me
+      tokenUsed: {
+        type: Number,
+        default: 0,
+      },
+      // token limit set kr denge ki user itne hi token use kr skta window ke time tak
+      tokenLimit: {
+        type: Number,
+        default: 10000,
+      },
+      // token ko reset kr denge
+      resetAt: {
+        // User ke usage ka reset time set kar rahe hain.
+        // Date.now() = abhi ka current time milliseconds mein
+        // + 5 hours = 5 ghante future ka time
+        //
+        // Example:
+        // Abhi = 10:00 AM
+        // resetAt = 3:00 PM
+        // db me store kra denge 5 ghnte ke baad kaa
+        type: Date,
+        default: () => new Date(Date.now() + 5 * 60 * 60 * 1000), // abhi kaa time plus 5 hours kaaa time add kr diya in milisecond
+      },
+      // total token aaj tak kitne token use kr lie
+      totalTokenUsed: {
+        type: Number,
+        default: 0,
+      },
+    },
+  },
+  { timestamps: true },
+);
+
+const User = mongoose.model("User", userSchema);
+export default User;
