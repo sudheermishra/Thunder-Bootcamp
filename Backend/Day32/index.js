@@ -5,6 +5,7 @@ import userRouter from "./routes/userRouter.js";
 import cookieParser from "cookie-parser";
 import chatRouter from "./routes/chatRouter.js";
 import messageRouter from "./routes/messageRouter.js";
+import { connectRedis } from "./config/redis.js";
 
 // dotenv.config process.env jo ki empty object h usme yeh data fill kr dega dotenv package
 // process.env hume nodejs deta h naa ki dotenv module/pacakage
@@ -24,6 +25,7 @@ app.use("/message", messageRouter);
 const startServer = async () => {
   try {
     await connectDB();
+    await connectRedis();
     app.listen(process.env.PORT, () => {
       console.log(`server is listening on port number ${process.env.PORT}`);
     });
