@@ -2,7 +2,7 @@ import { redisClient } from "../config/redis.js";
 
 const authenticateRateLimiter = async (req, resp, next) => {
   try {
-    const userId = req.user._id.toString;
+    const userId = req.tokenPayload.id;
     const key = `rate-limit:user:${userId}`;
 
     const requestCount = await redisClient.incr(key);
