@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import User from "../model/userSchema.js";
+import { redisClient } from "../config/redis.js";
 
 const authUserMiddleware = async (req, resp, next) => {
   try {
@@ -10,14 +10,15 @@ const authUserMiddleware = async (req, resp, next) => {
       });
     }
     const payload = jwt.verify(token, process.env.JWT_SECRET);
-    const existingUser = await User.findById({ _id: payload.id });
-    if (!existingUser) {
-      return resp.status(400).json({
-        message: "User Doesn't Exist",
+    const blockedToken = await redisClient.get(`blocklist:${token}`);
+    if (blockedToken) {
+      return resp.status(401).json({
+        message: "Please login again",
       });
     }
-    //Matlab req object ke andar user naam ki key/property bana do aur uske andar existingUser store kar do.
-    req.user = existingUser;
+    req.token = token;
+    req.tokenPayload = payload;
+
     next();
   } catch (error) {
     console.log(error);
