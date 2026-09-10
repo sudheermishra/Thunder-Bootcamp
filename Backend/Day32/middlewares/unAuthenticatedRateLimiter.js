@@ -2,7 +2,7 @@ import { redisClient } from "../config/redis.js";
 
 const unAuthenticateRateLimiter = async (req, resp, next) => {
   try {
-    const key = `rate-limit:ip: ${req.ip}`;
+    const key = `rate-limit:ip:${req.ip}`;
     const requestCount = await redisClient.incr(key);
 
     if (requestCount === 1) {
