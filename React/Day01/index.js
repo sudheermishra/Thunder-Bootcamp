@@ -1,17 +1,17 @@
-const React = {
-  createElement: function (tag, attributes, children) {
-    const element = document.createElement(tag);
-    element.textContent = children;
-    for (let key in attributes) {
-      if (key == "style") {
-        Object.assign(element.style, attributes.style);
-      } else {
-        element[key] = attributes[key];
-      }
-    }
-    return element;
-  },
-};
+// const React = {
+//   createElement: function (tag, attributes, children) {
+//     const element = document.createElement(tag);
+//     element.textContent = children;
+//     for (let key in attributes) {
+//       if (key == "style") {
+//         Object.assign(element.style, attributes.style);
+//       } else {
+//         element[key] = attributes[key];
+//       }
+//     }
+//     return element;
+//   },
+// };
 
 const element = React.createElement(
   "h1",
@@ -33,5 +33,14 @@ const element2 = React.createElement(
 );
 
 const root = document.getElementById("root");
-root.append(element);
-root.append(element2);
+// root.append(element);
+// root.append(element2);
+
+// const ReactDom = {
+//   render: function (child, parent) {
+//     parent.append(child);
+//   },
+// };
+
+ReactDOM.render(element, root);
+ReactDOM.render(element2, root);
