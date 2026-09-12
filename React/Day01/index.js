@@ -13,7 +13,21 @@
 //   },
 // };
 
-const element = React.createElement(
+// react light weight object
+
+const React = {
+  createElement: function (tag, attributes, children) {
+    return {
+      type: tag,
+      props: {
+        ...attributes,
+        children,
+      },
+    };
+  },
+};
+
+const element1 = React.createElement(
   "h1",
   {
     id: "first",
@@ -42,5 +56,23 @@ const root = document.getElementById("root");
 //   },
 // };
 
-ReactDOM.render(element, root);
+const ReactDOM = {
+  render: function (reactElement, parent) {
+    const element = document.createElement(reactElement.type);
+
+    for (const key in reactElement.props) {
+      if (key == "style") {
+        Object.assign(element.style, reactElement.props.style);
+      } else if (key == "children") {
+        element.textContent = reactElement.props.children;
+      } else {
+        element[key] = reactElement.props[key];
+      }
+    }
+    parent.innerHTML = "";
+    parent.append(element);
+  },
+};
+
+ReactDOM.render(element1, root);
 ReactDOM.render(element2, root);
