@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import { loginSchema, signupSchema } from "../validators/userValidator.js";
 import Message from "../model/messageSchema.js";
 import Chat from "../model/chatSchema.js";
+import { redisClient } from "../config/redis.js";
 
 const createToken = (userId, email) => {
   if (!process.env.JWT_SECRET) {
@@ -151,14 +152,32 @@ export const profile = async (req, resp) => {
 };
 
 export const logout = async (req, resp) => {
-  resp.clearCookie("token", {
-    httpOnly: true,
-    secure: false,
-  });
+  try {
+    if (req.token) {
+      const token = req.token;
+      const payload = req.tokenPayload;
 
-  resp.status(200).json({
-    message: "User Logged Out SuccessFully",
-  });
+      const currentTime = Math.floor(Date.now() / 1000);
+      const remaningTime = payload.exp - currentTime;
+      if (remaningTime > 0) {
+        await redisClient.set(`blocklist:${token}`, "blocked", {
+          EX: remaningTime,
+        });
+      }
+    }
+    resp.clearCookie("token", {
+      httpOnly: true,
+      secure: false,
+    });
+    resp.status(200).json({
+      message: "User Logged Out SuccessFully",
+    });
+  } catch (error) {
+    console.log(error);
+    resp.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
 };
 
 export const deleteAccount = async (req, resp) => {
