@@ -6,10 +6,14 @@ import {
   getSingleChat,
   deleteChat,
 } from "../controllers/chatController.js";
+import authenticateRateLimiter from "../middlewares/authenticatedRateLimiter.js";
+import loadUserMiddleware from "../middlewares/loadUserMiddleware.js";
 
 const chatRouter = express.Router();
 
 chatRouter.use(authUserMiddleware);
+chatRouter.use(authenticateRateLimiter);
+chatRouter.use(loadUserMiddleware);
 
 chatRouter.post("/createChat", createChat);
 
