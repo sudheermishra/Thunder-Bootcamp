@@ -3,6 +3,7 @@ import { useState } from "react";
 
 function App() {
   const [user, setUser] = useState([]);
+  const [count, setCount] = useState(10);
 
   useEffect(() => {
     async function gitHub() {
@@ -16,6 +17,10 @@ function App() {
 
   return (
     <>
+      <input
+        type="number"
+        value={count}
+        onChange={(e) => setCount(e.target.value)}></input>
       <div>
         {user.map((u) => (
           <img src={u.avatar_url} height={"150px"} width={"150px"}></img>
