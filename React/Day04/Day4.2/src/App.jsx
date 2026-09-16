@@ -7,13 +7,17 @@ function App() {
 
   useEffect(() => {
     async function gitHub() {
-      const response = await fetch("https://api.github.com/users");
+      // const response = await fetch("https://api.github.com/users");
+      const response = await fetch(
+        `https://api.github.com/users?per_page= ${count}`,
+      );
+
       const data = await response.json();
       console.log(data);
       setUser(data);
     }
     gitHub();
-  }, []);
+  }, [count]);
 
   return (
     <>
