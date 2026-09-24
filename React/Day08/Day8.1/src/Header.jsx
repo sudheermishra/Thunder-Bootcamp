@@ -1,8 +1,9 @@
 import Display from "./Display.jsx";
-function Header({ count }) {
+function Header() {
   return (
     <>
-      <Display count={count} />
+      <h1>I'm the Header</h1>
+      <Display />
     </>
   );
 }
