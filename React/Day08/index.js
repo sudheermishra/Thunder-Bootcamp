@@ -23,5 +23,15 @@ function main() {
   console.log("Hello main");
   app();
 }
-
+const obj = {
+  a: 20,
+  b: 30,
+  c1: {
+    d: 5,
+    hello: function () {
+      console.log(this.a);
+    },
+  },
+  c2: {},
+};
 main();
