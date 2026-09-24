@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useContext } from "react";
+import { CountContext } from "./App.jsx";
 
-function Counter({ count, setCount }) {
+function Counter() {
+  const { count, setCount } = useContext(CountContext);
   return (
     <>
       <h1>Count:{count}</h1>
