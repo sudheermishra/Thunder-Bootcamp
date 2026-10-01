@@ -5,9 +5,13 @@ function Counter({ name }) {
 
   return (
     <>
-      <h1>your name is {name}</h1>
-      <h1>Counter:{count}</h1>
-      <button onClick={() => setCount(count + 1)}>Increment</button>
+      <div>
+        <h1>Counter: {name}</h1>
+        <h1>Count is: {count}</h1>
+        <button onClick={() => setCount((count) => count + 1)}>
+          Increment
+        </button>
+      </div>
     </>
   );
 }
