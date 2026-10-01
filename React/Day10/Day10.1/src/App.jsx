@@ -5,9 +5,12 @@ function App() {
   const [timer, setTimer] = useState(["first", "second", "third"]);
   return (
     <>
-      {timer.map((value) => (
-        <Counter name={value} />
-      ))}
+      <h1>This is our Counter Table</h1>
+      <div style={{ display: "flex", justifyContent: "center", gap: "30px" }}>
+        {timer.map((value, index) => (
+          <Counter key={value} name={value}></Counter>
+        ))}
+      </div>
     </>
   );
 }
