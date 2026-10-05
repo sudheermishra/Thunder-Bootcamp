@@ -24,16 +24,33 @@ import Customer from "./Customer";
 
 // export default App;
 
+// function App() {
+//   const path = window.location.pathname;
+
+//   if (path == "/") return <Home></Home>;
+
+//   if (path == "/Contact") return <Contact></Contact>;
+
+//   if (path == "/About") return <About></About>;
+
+//   if (path == "/Customer") return <Cust omer></Cust>;
+// }
+
 function App() {
   const path = window.location.pathname;
 
-  if (path == "/") return <Home></Home>;
-
-  if (path == "/Contact") return <Contact></Contact>;
-
-  if (path == "/About") return <About></About>;
-
-  if (path == "/Customer") return <Customer></Customer>;
+  return (
+    <>
+      <a href="/">Home</a>
+      <a href="/About">About</a>
+      <a href="/Contact">Contact</a>
+      <a href="/Customer">Customer</a>
+      {path == "/" && <Home></Home>}
+      {path == "/About" && <About></About>}
+      {path == "/Customer" && <Customer></Customer>}
+      {path == "/Contact" && <Contact></Contact>}
+    </>
+  );
 }
 
 export default App;
