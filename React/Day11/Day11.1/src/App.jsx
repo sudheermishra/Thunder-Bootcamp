@@ -26,6 +26,7 @@ function App() {
         <Route path="/Courses" element={<Courses></Courses>}>
           <Route path="devops" element={<Devops></Devops>}></Route>
           <Route path="genai" element={<Genai></Genai>}></Route>
+          <Route path="*" element={<h1>Page Not Found</h1>}></Route>
         </Route>
       </Routes>
     </>
