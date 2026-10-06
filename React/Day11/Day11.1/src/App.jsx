@@ -31,9 +31,14 @@ function App() {
           <Route path="genai" element={<Genai></Genai>}></Route>
           <Route path="*" element={<h1>Page Not Found</h1>}></Route>
         </Route>
-
+        {/* 
         <Route path="/practice" element={<Practice></Practice>}></Route>
-        <Route path="/practice/:id" element={<Question></Question>}></Route>
+        <Route path="/practice/:id" element={<Question></Question>}></Route> */}
+
+        <Route path="/practice">
+          <Route index element={<Practice></Practice>}></Route>
+          <Route path=":id" element={<Question></Question>}></Route>
+        </Route>
       </Routes>
     </>
   );
