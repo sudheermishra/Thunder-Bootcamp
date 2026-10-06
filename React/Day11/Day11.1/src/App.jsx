@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route, NavLink } from "react-router";
 import Courses from "./Courses";
 import Devops from "./Devops";
 import Genai from "./Genai";
+import Question from "./Question";
 
 function App() {
   return (
@@ -28,6 +29,8 @@ function App() {
           <Route path="genai" element={<Genai></Genai>}></Route>
           <Route path="*" element={<h1>Page Not Found</h1>}></Route>
         </Route>
+
+        <Route path="/practice/:id" element={<Question></Question>}></Route>
       </Routes>
     </>
   );
