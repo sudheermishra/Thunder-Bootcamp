@@ -8,7 +8,8 @@ import Courses from "./Courses";
 import Devops from "./Devops";
 import Genai from "./Genai";
 import Question from "./Question";
-
+import Practice from "./Practice";
+import Page from "./Page";
 function App() {
   return (
     <>
@@ -25,11 +26,13 @@ function App() {
         <Route path="/Customer" element={<Customer></Customer>}></Route>
         <Route path="/About" element={<About></About>}></Route>
         <Route path="/Courses" element={<Courses></Courses>}>
+          <Route index element={<Page></Page>}></Route>
           <Route path="devops" element={<Devops></Devops>}></Route>
           <Route path="genai" element={<Genai></Genai>}></Route>
           <Route path="*" element={<h1>Page Not Found</h1>}></Route>
         </Route>
 
+        <Route path="/practice" element={<Practice></Practice>}></Route>
         <Route path="/practice/:id" element={<Question></Question>}></Route>
       </Routes>
     </>
