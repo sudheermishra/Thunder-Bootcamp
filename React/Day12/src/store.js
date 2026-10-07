@@ -7,4 +7,14 @@ export const useStore = create((set) => ({
   setUser: () => {
     set({ user: "Mishra" });
   },
+  setCount: () => {
+    set((state) => ({
+      count: state.count + 1,
+    }));
+  },
+  setNumber: (value) => {
+    set((state) => ({
+      number: state.number + value,
+    }));
+  },
 }));
