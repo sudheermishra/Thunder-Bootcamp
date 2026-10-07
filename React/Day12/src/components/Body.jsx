@@ -1,7 +1,16 @@
-import React from "react";
+import { useStore } from "../store";
 
 function Body() {
-  return <div>Body</div>;
+  const number = useStore((state) => state.number);
+  const setcount = useStore((state) => state.setCount);
+
+  return (
+    <>
+      <h1>I am the body</h1>
+      <h2>I will display {number}</h2>
+      <button onClick={setcount}>Increase</button>
+    </>
+  );
 }
 
 export default Body;
