@@ -4,10 +4,12 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema } from "../schemas/authSchema.js";
 import api from "../api.js";
+import { useAuthStore } from "../store/useAuthStore.js";
 
 export default function Login() {
   const navigate = useNavigate();
   const [serverError, setServerError] = useState("");
+  const setUser = useAuthStore((state) => state.setUser);
 
   const {
     register,
@@ -25,7 +27,10 @@ export default function Login() {
     setServerError("");
 
     try {
-      await api.post("/user/login", formData);
+      const response = await api.post("/user/login", formData);
+      const { name, age, email } = response.data;
+      setUser({ name, age, email });
+
       navigate("/", { replace: true });
     } catch (error) {
       setServerError(
