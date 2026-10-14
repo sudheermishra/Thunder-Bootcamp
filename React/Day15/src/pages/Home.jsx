@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { Navigate } from "react-router";
 import api from "../api";
+import { useAuthStore } from "../store/useAuthStore";
 
 function Home() {
-  const [user, setUser] = useState(null);
   const [status, setStatus] = useState("loading");
+  const user = useAuthStore((state) => state.user);
+  const setUser = useAuthStore((state) => state.setUser);
 
   useEffect(() => {
     async function checkSession() {
