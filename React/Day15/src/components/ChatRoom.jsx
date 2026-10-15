@@ -4,7 +4,7 @@ import api from "../api.js";
 import { useAuthStore } from "../store/useAuthStore.js";
 import { useChatStore } from "../store/useChatStore.js";
 
-const MODEL = "openai/gpt-4.1-mini";
+const MODEL = "openrouter/free";
 
 // The server has already finished the answer. Reveal its text in small pieces.
 function revealReply(text, onChange) {
