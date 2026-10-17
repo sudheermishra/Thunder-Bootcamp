@@ -58,3 +58,28 @@
 //     city: "delhi"
 // }
 // console.log(person);
+// type person = {name: string, age: number, city: string};
+// type address = {pincode: number, state: string};
+// type newPerson = person & address;
+// let p1: person = {
+//     name: "Rohit",
+//     age: 10,
+//     city: "kotdwar"
+// }
+// let p2: person = {
+//     name: "Amir",
+//     age: 90,
+//     city: "hyderabad"
+// }
+// let p3: newPerson = {
+//     name: "Mohan",
+//     age: 19,
+//     city: "kashmir",
+//     pincode: 123456,
+//     state: "Haryana"
+// }
+// console.log(p1,p2, p3);
+let id = 101;
+id = "201";
+console.log(id);
+export {};
