@@ -38,3 +38,23 @@
 // console.log(add(2,3));
 // console.log(add(2,3,4));
 // console.log(add(2,3,4,9,11,19,20));
+// let a = 10;
+// a = 10;
+// // a = "Rohit";
+// console.log(a);
+// let a: unknown = "Rohit";
+// if(typeof a === "string")
+//     console.log(a.toUpperCase());
+// if(typeof a === 'number')
+//     console.log(a.toFixed(2));
+// let person : { name:string; age:number ; city:string} = {
+//     name: "Rohit",
+//     age: 20,
+//     city: "kotdwar"
+// };
+// let person2:  { name:string; age:number ; city:string} = {
+//     name: "Amir",
+//     age: 45,
+//     city: "delhi"
+// }
+// console.log(person);
